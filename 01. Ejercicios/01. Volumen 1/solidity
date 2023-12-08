@@ -1,0 +1,34 @@
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+    
+    contract Blockmaker_S_A {
+        address public  ower;
+
+    constructor(){
+        ower = msg.sender;
+    }
+    }
+    
+    struct Empleado;   {
+        unit 256 id;
+        string name;
+        unit 256 Saladio;
+        
+    }
+    Empleado public Ivan = Empleado (1,Ivan, 3 "Eter" );
+    Empleado public JC = Empleado(2,Juan_Carlos,2 "Eter");
+    Empleado public IP = Empleado(3,Isabel_Parra,2 "Eter");
+    Empleado public AR = Empleado(4,Ana_Redondo,2 "Eter");
+    Empleado public YS = Empleado(5,Yordan_Stoizov,2 "Eter");
+
+    mapping(address => uint256) public balances;
+
+    // Function to set the balance for an address
+    function setBalance(address _account, uint256 _balance) public {
+        balances[_account] = _balance;
+    }
+
+    // Function to get the balance of an address
+    function getBalance(address _account) public view returns (uint256) {
+        return balances[_account];
+    }
