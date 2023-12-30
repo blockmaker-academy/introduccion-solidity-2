@@ -107,7 +107,7 @@ contract Mercado2 {
         productoExistente(idProducto)
     {      
         // variable local que almacena los datos del producto
-        Producto memory producto = _productos[idProducto];
+        Producto storage producto = _productos[idProducto];
         // variable local precio total a pagar
         uint256 precioAPagar = producto.precio * cantidadComprar;
 
