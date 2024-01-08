@@ -78,6 +78,7 @@ contract CompraRemota {
     function confirmarCompra()
         public
         payable
+        soloComprador
         enEstado(Estado.Creado)
         condicion(msg.value == (2 * valor))
     {
