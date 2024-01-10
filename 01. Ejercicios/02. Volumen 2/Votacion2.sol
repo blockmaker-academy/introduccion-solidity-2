@@ -28,7 +28,7 @@ contract Votacion2 {
         require(msg.sender == administrador, "Solo el administrador puede acceder"); 
         _;
     }
-
+    // ["C1", "C2", "C3"] => [Propuesta("C1", 0), Propuesta("C2", 0), Propuesta("C3", 0)]
     constructor(string[] memory nombrePropuestas) {
         administrador = msg.sender;
         // recorrer nombrePropuestas => arrays comienzan por 0 => 
@@ -63,12 +63,56 @@ contract Votacion2 {
     }
 
     function delegar(address receptor) public {
+        // 1. Bloque 1: Comprobar si podemos delegar
         require(votantes[msg.sender].peso > 0, "El usuario no puede votar");
         require(votantes[msg.sender].votado == false, "El usuario ya ha votado");
         require(msg.sender != receptor, "El usuario no puede delegar en si mismo");
 
-        // bucle while
-        // delegado del receptor(0x34958) = 0x49582 |  delegado de 0x49582 = 0x95823 | delegado de 0x95823 = 0 => le transmito mi peso
+        // 2. Bloque 2: Comprobar si el receptor de la delegación ha delegado en otra persona 
+        // con el objetivo de conocer el receptor final
+        while(votantes[receptor].delegado != address(0)) {
+            receptor = votantes[receptor].delegado;
+            require(receptor != msg.sender, "No pueden existir bucles hacia el emisor");
+        }
+
+        // 3. Bloque 3: Comprobar si el receptor tiene derecho a voto
+        require(votantes[receptor].peso >= 1, "El receptor no tiene derecho a voto");
+
+        votantes[msg.sender].votado = true;
+        votantes[msg.sender].delegado = receptor;
+        
+        // 4. Bloque 4: Comprobar si el receptor a votado o no
+        if(votantes[receptor].votado) {
+            uint256 indiceCandidatoVotado = votantes[receptor].voto;
+            propuestas[indiceCandidatoVotado].cantidadVotos += votantes[msg.sender].peso;
+        } else {
+            votantes[receptor].peso += votantes[msg.sender].peso;
+        }
+
+        votantes[msg.sender].peso = 0;
+
+        emit VotoDelegado(msg.sender, receptor);
+    }
+    
+    function votar(uint256 indiceCandidato) public {
+        // 1. Bloque: Comprobamos que el emisor pueda votar
+        require(votantes[msg.sender].peso > 0, "No tenemos votos disponibles");
+        require(!votantes[msg.sender].votado, "No tenemos votos disponibles");
+
+        votantes[msg.sender].votado = true;
+        votantes[msg.sender].voto = indiceCandidato;
+
+        // 2. Bloque: Mandamos nuestros votos al candidato elegido
+        propuestas[indiceCandidato].cantidadVotos += votantes[msg.sender].peso;
+
+        votantes[msg.sender].peso = 0;
+
+        emit VotoEmitido(msg.sender, indiceCandidato);
+    }
+
+    function _propuestaGanadora() private view returns(uint256) {
+        // cantidadVotosGanador = 0; // 5000 cantidadVotos >= cantidadVotosGanador
+        // indiceCandidatoGanador;
 
     }
 
