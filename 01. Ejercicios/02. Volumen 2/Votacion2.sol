@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
+import "./Receptor.sol";
+
 contract Votacion2 {
     address public administrador;
 
@@ -18,6 +20,10 @@ contract Votacion2 {
 
     mapping(address => Votante) public votantes; // 0x2495823 (Borja) => Votante(1, true, "", 1)
 
+    // string[] nombres = ["Mati", "María", "José"];
+    // uint256[] numeros = [1, 2, 3, 4];
+    // bool[] respuestasTest = [true, false, false, true, false];
+    // Propuestas[] propus = [Propuesta("Candidato1", 0), Propuesta("Candidato2", 5)];
     Propuesta[] public propuestas; // propuestas[1] => Propuesta("Feijó", 2);
     
     event DerechoVotoOtorgado(address indexed votante);
@@ -110,10 +116,29 @@ contract Votacion2 {
         emit VotoEmitido(msg.sender, indiceCandidato);
     }
 
+    function nombreGanador() public view returns(string memory) {
+        // uint256 indiceGanador = _propuestaGanadora();
+        // return propuestas[indiceGanador].nombre;
+        return propuestas[_propuestaGanadora()].nombre;
+    }
+
+    function devolverStruct() public view returns(Propuesta memory) {
+        return propuestas[0]; // nombre + cantidadVotos
+    }
+
     function _propuestaGanadora() private view returns(uint256) {
         // cantidadVotosGanador = 0; // 5000 cantidadVotos >= cantidadVotosGanador
         // indiceCandidatoGanador;
-
+        uint256 cantidadVotosGanadores = 0;
+        uint256 indicePropuestaGanadora = 0;
+        for(uint256 i=0; i < propuestas.length; i++) {
+            // i=0 // i=1 // i=2
+            // propuestas[i];
+            if(propuestas[i].cantidadVotos > cantidadVotosGanadores) {
+                cantidadVotosGanadores = propuestas[i].cantidadVotos;
+                indicePropuestaGanadora = i;
+            }
+        }
+        return indicePropuestaGanadora; // 0, 1, 2, 3, 4
     }
-
 }
