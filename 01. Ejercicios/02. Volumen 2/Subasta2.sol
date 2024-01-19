@@ -70,16 +70,40 @@ contract Subasta {
     }
 
     function retirar() public returns(bool) {
-        // Comprobamos si el emisor tiene cantidasd pendiente de retirar
+        // Comprobamos si el emisor tiene cantidad pendiente de retirar
         uint256 cantidadADevolver = devolucionesPendientes[msg.sender];
         if(cantidadADevolver > 0) {
-
-            // Envío la cantidad pendiente al emisor (send)
-            // <address payable>.send(cantidad)
-            payable(msg.sender).send(cantidadADevolver);
-
+            // ENVIAMOS EL ETHER PENDIENTE
+            // Si falla el envío de ether
+            if(payable(msg.sender).send(cantidadADevolver) == false) {
+                return false;
+            }
+            // Si no falla el envío de ether
+            devolucionesPendientes[msg.sender] = 0;
+            return true;
         }
         return false;
+    }
+
+    function finalizarSubasta() public soloAdministrador {
+        // Comprobamos si el tiempo límite de la subasta se ha sobrepasado o es igual
+        if(block.timestamp < finSubasta) {
+            // error
+            revert SubastaNoFinalizadaTodavia();
+        }
+
+        if(finalizada == true) {
+            // error
+            revert FinSubastaYaLlamado();
+        }
+
+        // comprobaciones realizadas
+        // enviar los fondos al beneficiario (transfer)
+        beneficiario.transfer(mejorOferta);
+        finalizada = true;
+
+        // emitir evento
+        emit SubastaFinalizada(mejorPostor, mejorOferta);
     }
 
     // TO-DO: function retirarOferta
